@@ -47,4 +47,5 @@ jobs:
       uses: docker/build-push-action@v4
       with:
         push: true
+        platforms: linux/amd64, linux/arm64
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/simple-java-maven-app:${{ steps.tag_action.outputs.new_tag }}
