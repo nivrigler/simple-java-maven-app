@@ -24,3 +24,4 @@ jobs:
         DEFAULT_BUMP: patch
     - name: Build
       run: mvn -B -DskipTests clean package
+      
