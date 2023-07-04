@@ -16,12 +16,18 @@ jobs:
     - name: Test
       run: mvn test
     - name: Bump version and push tag by patch
+      id: tag_action
       uses: anothrNick/github-tag-action@1.64.0 # Don't use @master or @v1 unless you're happy to test the latest version
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # if you don't want to set write permissions use a PAT token
         WITH_V: false
         INITIAL_VERSION: 1.0.0
         DEFAULT_BUMP: patch
+    - name: Change pom version
+      uses: MathieuSoysal/replace-string-in-file@v1.0.0
+      with:
+        file: pom.xml
+        old-string: 1.0-SNAPSHOT
+        new-string: ${{ steps.tag_action.outputs.new_tag }}
     - name: Build
       run: mvn -B -DskipTests clean package
-      
