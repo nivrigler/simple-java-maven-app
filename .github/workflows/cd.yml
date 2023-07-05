@@ -68,4 +68,4 @@ jobs:
           docker pull rigler/simple-java-maven-app:${{ needs.build-and-deliver.outputs.output1 }}
           docker stop my_app_container || true
           docker rm my_app_container || true
-          docker run -d --name my_app_container -p 8080:8080 rigler/simple-java-maven-app:${{ needs.build-and-deliver.outputs.output1 }}  
+          docker run -d --name my_app_container -p 8080:8080 rigler/simple-java-maven-app:${{ needs.build-and-deliver.outputs.output1 }}   
