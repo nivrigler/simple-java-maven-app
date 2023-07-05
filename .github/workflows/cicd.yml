@@ -13,13 +13,6 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
-    - name: Test
-      run: mvn test
-  build-and-deliver:
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
     - name: Bump version and push tag by patch
       id: tag_action
       uses: anothrNick/github-tag-action@1.64.0
@@ -28,6 +21,31 @@ jobs:
         WITH_V: false
         INITIAL_VERSION: 1.0.0
         DEFAULT_BUMP: patch
+        DRY_RUN: true
+    - name: Set version in POM
+      run: mvn versions:set -DnewVersion=${{ steps.tag_action.outputs.new_tag }}
+    - name: Commit changes
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git commit -m "Set version to ${{ steps.tag_action.outputs.new_tag }}" -a
+    - name: Push changes
+      uses: ad-m/github-push-action@v0.6.0
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Test
+      run: mvn test
+    - name: Build
+      uses: docker/build-push-action@v4
+      with:
+        tags: simple-java-maven-app
+        build-args: |
+          VERSION=123
+  build-and-deliver:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v2
     - name: Set up Docker Buildx
@@ -45,3 +63,12 @@ jobs:
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/simple-java-maven-app:${{ steps.tag_action.outputs.new_tag }}
         build-args: |
           VERSION=${{ steps.tag_action.outputs.new_tag }}
+    - name: Create docker context for deploy
+      uses: arwynfr/actions-docker-context@v2
+      with:
+        docker_host: ssh://${{ secrets.DEPLOY_HOST }}
+        context_name: 'deploy'
+        ssh_cert: ${{ secrets.DEPLOY_SSH_CERT }}
+        ssh_key: ${{ secrets.DEPLOY_SSH_KEY }}
+    - run: >
+        docker --context deploy run ${{ secrets.DOCKERHUB_USERNAME }}/simple-java-maven-app:${{ steps.tag_action.outputs.new_tag }}
