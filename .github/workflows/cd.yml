@@ -9,6 +9,8 @@ on:
 jobs:
   build-and-deliver:
     runs-on: ubuntu-latest
+    outputs:
+      output1: ${{ steps.tag_action.outputs.new_tag }}
     steps:
     - uses: actions/checkout@v3
     - name: Bump version and push tag by patch
@@ -63,7 +65,7 @@ jobs:
         username: ${{ secrets.DEPLOY_USER }}
         key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
         script: |
-          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/simple-java-maven-app:${{ steps.tag_action.outputs.new_tag }}
+          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/simple-java-maven-app:${{ needs.build-and-deliver.outputs.output1 }}
           docker stop my_app_container || true
           docker rm my_app_container || true
-          docker run -d --name my_app_container -p 8080:8080 ${{ secrets.DOCKERHUB_USERNAME }}/simple-java-maven-app:${{ steps.tag_action.outputs.new_tag }}
+          docker run -d --name my_app_container -p 8080:8080 ${{ secrets.DOCKERHUB_USERNAME }}/simple-java-maven-app:${{ needs.build-and-deliver.outputs.output1 }}
