@@ -24,11 +24,11 @@ jobs:
         DRY_RUN: false
     - name: Set version in POM
       run: mvn versions:set -DnewVersion=${{ steps.tag_action.outputs.new_tag }}
-    # - name: Commit changes
-      # run: |
-      #   git config --local user.email "action@github.com"
-      #   git config --local user.name "GitHub Action"
-      #   git commit -m "Set version to ${{ steps.tag_action.outputs.new_tag }}" -a
+    - name: Commit changes
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git commit -m "Set version to ${{ steps.tag_action.outputs.new_tag }}" -a
     - name: Push changes
       uses: ad-m/github-push-action@v0.6.0
       with:
