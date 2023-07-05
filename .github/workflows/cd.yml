@@ -65,7 +65,7 @@ jobs:
         username: ${{ secrets.DEPLOY_USER }}
         key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
         script: |
-          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/simple-java-maven-app:${{ needs.build-and-deliver.outputs.output1 }}
+          docker pull rigler/simple-java-maven-app:${{ needs.build-and-deliver.outputs.output1 }}
           docker stop my_app_container || true
           docker rm my_app_container || true
-          docker run -d --name my_app_container -p 8080:8080 ${{ secrets.DOCKERHUB_USERNAME }}/simple-java-maven-app:${{ needs.build-and-deliver.outputs.output1 }} 
+          docker run -d --name my_app_container -p 8080:8080 rigler/simple-java-maven-app:${{ needs.build-and-deliver.outputs.output1 }} 
