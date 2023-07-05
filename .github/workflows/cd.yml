@@ -50,6 +50,7 @@ jobs:
         build-args: |
           VERSION=${{ steps.tag_action.outputs.new_tag }}
   deploy:
+    needs: build-and-deliver
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
