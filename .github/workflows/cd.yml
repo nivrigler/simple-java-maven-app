@@ -1,13 +1,15 @@
 name: CD
 
 on:
-  workflow_run:
-    workflows: ["ci"]
+  pull_request:
     types:
-      - completed
+      - closed
+    branches:
+      - master
 
 jobs:
   build-and-deliver:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     outputs:
       output1: ${{ steps.tag_action.outputs.new_tag }}
@@ -52,6 +54,7 @@ jobs:
         build-args: |
           VERSION=${{ steps.tag_action.outputs.new_tag }}
   deploy:
+    if: github.event.pull_request.merged == true
     needs: build-and-deliver
     runs-on: ubuntu-latest
     steps:
